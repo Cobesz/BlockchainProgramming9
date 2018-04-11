@@ -30,8 +30,8 @@ function getNextBlock() {
         // convertStringToAscii(blockString);
 
         // test string
-        convertStringToAscii('1010010101CMGT Mining CorporationBas11517925926858151792655130223')
-        // convertStringToAscii('test')
+        // convertStringToAscii('1010010101CMGT Mining CorporationBas11517925926858151792655130223')
+        convertStringToAscii('text')
     });
 }
 
@@ -57,7 +57,6 @@ function convertStringToAscii(input) {
             }
         }
     }
-// console.log(charArray);
 
     splitInTen(charArray);
 }
@@ -99,10 +98,15 @@ function fillChunks(chunkedArray) {
 
 
 function addUp(formattedArrays) {
-    console.log('new loop');
 
     // exit condition
-    if (formattedArrays.length === 1) return;
+    if (formattedArrays.length === 1) {
+        console.log('original:');
+        console.log(formattedArrays);
+        checkForTens(formattedArrays[0]);
+        return;
+    }
+
 
     //first 2 entries of total package
     let arrayA = formattedArrays[0];
@@ -112,17 +116,84 @@ function addUp(formattedArrays) {
     let mergedArray = [];
 
     for (let i = 0; i < arrayA.length; i++) {
-        let sum = Number(arrayA[i]) + Number(arrayB[i]);
-        mergedArray.push(sum.toString());
+        let sum = (Number(arrayA[i]) + Number(arrayB[i])) % 10;
+        mergedArray.push(sum);
     }
-    // console.log(mergedArray);
 
     formattedArrays.splice(0, 2);
-    formattedArrays.splice(0,0, mergedArray);
+    formattedArrays.splice(0, 0, mergedArray);
 
-    console.log(formattedArrays);
     return addUp(formattedArrays)
+}
 
+function checkForTens(calculatedArray) {
+
+    let originalArray = calculatedArray.slice();
+
+    let binaryArray = [];
+
+    let placement = 0;
+
+    let tail;
+
+    console.log('Placement: ', placement);
+
+    for (let i = 0; i < calculatedArray.length; i++) {
+
+        console.log(i);
+
+        //starts at calculatedArray[0] and sums up with entries later in the collection
+        if (calculatedArray[0] + calculatedArray[i] === 10) {
+
+            console.log('Found a match!');
+
+            calculatedArray.splice(i, 1);
+            calculatedArray.splice(0, 1);
+
+
+            if (calculatedArray[0] > calculatedArray[i]) {
+                // copying for matching purposes
+                binaryArray.splice(placement, 0, 1, 0);
+            }
+            // example: 1 + 9 = 10, so placement in array becomes [0, 1, etc]
+            else {
+                binaryArray.splice(placement, 0, 0, 1);
+            }
+
+            console.log('Placement: ', placement);
+
+            console.log('Binary ', binaryArray);
+            console.log('Calculated: ', calculatedArray);
+            placement += 2;
+            i = 0;
+        } else {
+            console.log('No match found');
+            // count ++;
+            console.log('Iterator: ', i);
+
+            if (i === calculatedArray.length - 1) {
+
+                console.log('Resetting iterator');
+                binaryArray.splice(placement, 0, calculatedArray[0]);
+                calculatedArray.splice(0, 1);
+
+                console.log('Binary ', binaryArray);
+                console.log('Calculated: ', calculatedArray);
+
+                placement++;
+                i = 0;
+            }
+        }
+    }
+    console.log('Adding last entry in calculatedArray to binaryArray');
+    binaryArray.splice(placement, 0, calculatedArray[0]);
+    calculatedArray.splice(0, 1);
+
+    console.log('Binary ', binaryArray);
+    console.log('Calculated: ', calculatedArray);
+
+
+    console.log('Original array was: ', originalArray);
 }
 
 
