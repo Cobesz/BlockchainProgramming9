@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/Cobesz/BlockchainProgramming9#readme",
   "dependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^5.1.0",
     "request": "^2.85.0"
   }
 }

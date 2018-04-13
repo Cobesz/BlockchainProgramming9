@@ -1,3 +1,5 @@
+const chai = require('chai');
+
 const request = require('request');
 
 let allBlocks;
@@ -5,28 +7,31 @@ let nextBlock;
 let blockString;
 let nonce = -1;
 
+let blockConfirmed = false;
+
+getNextBlock();
+
 function getAllBlocks() {
     request.get("http://programmeren9.cmgt.hr.nl:8000/api/blockchain", (error, response, body) => {
         allBlocks = JSON.parse(body);
-        // console.log(allBlocks);
     });
 }
-
 
 function getNextBlock() {
     request.get("http://programmeren9.cmgt.hr.nl:8000/api/blockchain/next", (error, response, body) => {
         nextBlock = JSON.parse(body);
 
-        // blockString = nextBlock.blockchain.hash +
-        //     nextBlock.transactions[0].from +
-        //     nextBlock.transactions[0].to +
-        //     nextBlock.transactions[0].amount +
-        //     nextBlock.transactions[0].timestamp +
-        //     nextBlock.blockchain.timestamp +
-        //     nextBlock.blockchain.nonce;
+        console.log(nextBlock.blockchain);
 
-        blockString = '1010010101CMGT Mining CorporationBas11517925926858151792655130223';
-        // blockString = 'text';
+        blockString = nextBlock.blockchain.hash +
+            nextBlock.blockchain.data[0].from +
+            nextBlock.blockchain.data[0].to +
+            nextBlock.blockchain.data[0].amount +
+            nextBlock.blockchain.data[0].timestamp +
+            nextBlock.blockchain.timestamp +
+            nextBlock.blockchain.nonce;
+
+        console.log(blockString);
 
         //to make blockstring immutable
         blockString = Object.freeze(blockString);
@@ -35,10 +40,6 @@ function getNextBlock() {
 
     });
 }
-
-getNextBlock();
-
-// getAllBlocks();
 
 function convertStringToAscii(input) {
 
@@ -59,7 +60,6 @@ function convertStringToAscii(input) {
         }
     }
 
-    console.log('input in asci is: ', charArray);
     splitInTen(charArray);
 }
 
@@ -94,6 +94,7 @@ function fillChunks(chunkedArray) {
         }
         filledArray.push(item);
     }
+
     addUp(chunkedArray);
 }
 
@@ -105,7 +106,6 @@ function addUp(formattedArrays) {
         checkForTens(formattedArrays[0]);
         return;
     }
-
 
     //first 2 entries of total package
     let arrayA = formattedArrays[0];
@@ -127,7 +127,7 @@ function addUp(formattedArrays) {
 
 function checkForTens(calculatedArray) {
 
-    console.log('calculatedArray = ', calculatedArray)
+    console.log('calculatedArray = ', calculatedArray);
 
     let originalArray = calculatedArray.slice();
 
@@ -137,7 +137,7 @@ function checkForTens(calculatedArray) {
 
     let tail = [];
 
-    for (let i = 0; i < calculatedArray.length; i++) {
+    for (let i = 1; i < calculatedArray.length; i++) {
 
         //starts at calculatedArray[0] and sums up with entries later in the collection
         if (calculatedArray[0] + calculatedArray[i] === 10) {
@@ -169,7 +169,7 @@ function checkForTens(calculatedArray) {
             tail = [];
 
             placement += 2;
-            i = 0;
+            i = 1;
         } else {
             // No match found
             if (i === calculatedArray.length - 1) {
@@ -183,11 +183,14 @@ function checkForTens(calculatedArray) {
             }
         }
     }
-    binaryArray.splice(placement, 0, calculatedArray[0]);
-    calculatedArray.splice(0, 1);
+    if (calculatedArray.length > 0) {
+        binaryArray.splice(placement, 0, calculatedArray[0]);
+        calculatedArray.splice(0, 1);
+    }
+
 
     console.log('Original array was: ', originalArray);
-
+    console.log('binaryArray is: ', binaryArray);
     checkIfBinary(binaryArray);
 }
 
@@ -207,10 +210,65 @@ function checkIfBinary(binaryArray) {
         }
     }
 
-    console.log('nonce is: ', nonce);
 
     console.log('binaryArray is: ', binaryArray);
+
+    let oldHash = binaryArray.toString().replace(/,/g, "");
+
+    if (blockConfirmed === true) {
+        console.log('Block is found, carry on.');
+        console.log('nonce is: ', nonce);
+        postBlock();
+
+    } else {
+        console.log('parsing old hash');
+        newBlock(oldHash);
+    }
 }
 
+
+function newBlock(oldHash) {
+
+    console.log(oldHash);
+    request.get("http://programmeren9.cmgt.hr.nl:8000/api/blockchain/next", (error, response, body) => {
+        nextBlock = JSON.parse(body);
+
+        console.log(nextBlock);
+
+        blockString = oldHash +
+            nextBlock.transactions[0].from +
+            nextBlock.transactions[0].to +
+            nextBlock.transactions[0].amount +
+            nextBlock.transactions[0].timestamp +
+            nextBlock.timestamp;
+
+        //to make blockstring immutable
+        blockString = Object.freeze(blockString);
+
+        console.log(blockString);
+
+        blockConfirmed = true;
+
+        convertStringToAscii(blockString);
+    });
+}
+
+function postBlock() {
+
+    console.log('nonce is: ', nonce);
+
+    let formData = {
+        user: '0905386',
+        nonce: nonce
+    };
+
+    request.post({
+            url: 'http://programmeren9.cmgt.hr.nl:8000/api/blockchain/',
+            form: formData
+        },
+        function (err, httpResponse, body) {
+            console.log(err, body);
+        });
+}
 
 
