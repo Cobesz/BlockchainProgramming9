@@ -24,6 +24,8 @@ function getNextBlock() {
             nextBlock.blockchain.timestamp +
             nextBlock.blockchain.nonce;
 
+        //to make blockstring immutable
+        blockString = Object.freeze(blockString);
         console.log(blockString);
 
         //actual string
@@ -92,7 +94,6 @@ function fillChunks(chunkedArray) {
         }
         filledArray.push(item);
     }
-    // console.log(chunkedArray);
     addUp(chunkedArray);
 }
 
@@ -134,31 +135,76 @@ function checkForTens(calculatedArray) {
 
     let placement = 0;
 
-    let tail;
+    let tail = [];
 
     console.log('Placement: ', placement);
 
     for (let i = 0; i < calculatedArray.length; i++) {
-
-        console.log(i);
 
         //starts at calculatedArray[0] and sums up with entries later in the collection
         if (calculatedArray[0] + calculatedArray[i] === 10) {
 
             console.log('Found a match!');
 
+            console.log('The full array is: ', calculatedArray);
+            console.log('the tail iterator is: ', i);
+
+            tail.push(calculatedArray.slice(i + 1, calculatedArray.length));
+
             calculatedArray.splice(i, 1);
             calculatedArray.splice(0, 1);
 
+            if (calculatedArray[0] < calculatedArray[i]) {
 
-            if (calculatedArray[0] > calculatedArray[i]) {
                 // copying for matching purposes
                 binaryArray.splice(placement, 0, 1, 0);
             }
             // example: 1 + 9 = 10, so placement in array becomes [0, 1, etc]
             else {
                 binaryArray.splice(placement, 0, 0, 1);
+                // binaryArray.splice(placement + 2, 0, tail);
             }
+
+            i -= 1;
+
+            console.log('calculatedArray before splicing is: ', calculatedArray);
+            console.log('binaryArray before splicing is: ', binaryArray);
+            console.log('the iterator before splicing is: ', i);
+
+            console.log(tail[0]);
+
+            let n = 0;
+            for(let item of tail[0]) {
+                calculatedArray.splice(n, 0, item);
+                n++
+            }
+
+
+            calculatedArray.splice(-tail[0].length, tail[0].length);
+
+            // calculatedArray.splice(0, 0, calculatedArray.splice(i, tail[0].length));
+
+
+
+            // Array.prototype.move = function (from, to) {
+            //     this.splice(to, 0, this.splice(from, tail.length)[0]);
+            // };
+            //
+            // calculatedArray.move(i - 1, 0);
+
+
+
+            // placement +=2;
+            // for (let item of tail[0]) {
+            //     calculatedArray.splice(i, 0, item);
+            //     placement ++;
+            // }
+
+            console.log("after splicing, calculated array is: ", calculatedArray);
+            console.log("after splicing, binary array is: ", binaryArray);
+
+
+            tail = [];
 
             console.log('Placement: ', placement);
 
@@ -191,7 +237,6 @@ function checkForTens(calculatedArray) {
 
     console.log('Binary ', binaryArray);
     console.log('Calculated: ', calculatedArray);
-
 
     console.log('Original array was: ', originalArray);
 }
