@@ -102,8 +102,6 @@ function addUp(formattedArrays) {
 
     // exit condition
     if (formattedArrays.length === 1) {
-        console.log('original:');
-        console.log(formattedArrays);
         checkForTens(formattedArrays[0]);
         return;
     }
@@ -137,108 +135,58 @@ function checkForTens(calculatedArray) {
 
     let tail = [];
 
-    console.log('Placement: ', placement);
-
     for (let i = 0; i < calculatedArray.length; i++) {
 
         //starts at calculatedArray[0] and sums up with entries later in the collection
         if (calculatedArray[0] + calculatedArray[i] === 10) {
 
-            console.log('Found a match!');
-
-            console.log('The full array is: ', calculatedArray);
-            console.log('the tail iterator is: ', i);
-
+            // doing +1 so it ignores the first item in tail, we don't need that
             tail.push(calculatedArray.slice(i + 1, calculatedArray.length));
 
             calculatedArray.splice(i, 1);
             calculatedArray.splice(0, 1);
 
             if (calculatedArray[0] < calculatedArray[i]) {
-
                 // copying for matching purposes
                 binaryArray.splice(placement, 0, 1, 0);
             }
             // example: 1 + 9 = 10, so placement in array becomes [0, 1, etc]
             else {
                 binaryArray.splice(placement, 0, 0, 1);
-                // binaryArray.splice(placement + 2, 0, tail);
             }
 
-            i -= 1;
-
-            console.log('calculatedArray before splicing is: ', calculatedArray);
-            console.log('binaryArray before splicing is: ', binaryArray);
-            console.log('the iterator before splicing is: ', i);
-
-            console.log(tail[0]);
-
             let n = 0;
-            for(let item of tail[0]) {
+            for (let item of tail[0]) {
                 calculatedArray.splice(n, 0, item);
                 n++
             }
-
-
+            // removing tail from the end of the hash
             calculatedArray.splice(-tail[0].length, tail[0].length);
 
-            // calculatedArray.splice(0, 0, calculatedArray.splice(i, tail[0].length));
-
-
-
-            // Array.prototype.move = function (from, to) {
-            //     this.splice(to, 0, this.splice(from, tail.length)[0]);
-            // };
-            //
-            // calculatedArray.move(i - 1, 0);
-
-
-
-            // placement +=2;
-            // for (let item of tail[0]) {
-            //     calculatedArray.splice(i, 0, item);
-            //     placement ++;
-            // }
-
-            console.log("after splicing, calculated array is: ", calculatedArray);
-            console.log("after splicing, binary array is: ", binaryArray);
-
-
+            //resetting tail to build the new one.
             tail = [];
 
-            console.log('Placement: ', placement);
-
-            console.log('Binary ', binaryArray);
-            console.log('Calculated: ', calculatedArray);
             placement += 2;
             i = 0;
         } else {
-            console.log('No match found');
-            // count ++;
-            console.log('Iterator: ', i);
-
+            // No match found
             if (i === calculatedArray.length - 1) {
 
-                console.log('Resetting iterator');
                 binaryArray.splice(placement, 0, calculatedArray[0]);
                 calculatedArray.splice(0, 1);
 
-                console.log('Binary ', binaryArray);
-                console.log('Calculated: ', calculatedArray);
-
                 placement++;
+                // Resetting iterator to redo the loop.
                 i = 0;
             }
         }
     }
-    console.log('Adding last entry in calculatedArray to binaryArray');
     binaryArray.splice(placement, 0, calculatedArray[0]);
     calculatedArray.splice(0, 1);
 
-    console.log('Binary ', binaryArray);
-    console.log('Calculated: ', calculatedArray);
-
     console.log('Original array was: ', originalArray);
+
+    console.log('binaryArray is: ', binaryArray);
 }
 
 
