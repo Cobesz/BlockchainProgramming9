@@ -2,12 +2,13 @@ const request = require('request');
 
 let allBlocks;
 let nextBlock;
+let blockString;
+let nonce = -1;
 
 function getAllBlocks() {
     request.get("http://programmeren9.cmgt.hr.nl:8000/api/blockchain", (error, response, body) => {
         allBlocks = JSON.parse(body);
         // console.log(allBlocks);
-
     });
 }
 
@@ -16,24 +17,22 @@ function getNextBlock() {
     request.get("http://programmeren9.cmgt.hr.nl:8000/api/blockchain/next", (error, response, body) => {
         nextBlock = JSON.parse(body);
 
-        let blockString = nextBlock.blockchain.hash +
-            nextBlock.transactions[0].from +
-            nextBlock.transactions[0].to +
-            nextBlock.transactions[0].amount +
-            nextBlock.transactions[0].timestamp +
-            nextBlock.blockchain.timestamp +
-            nextBlock.blockchain.nonce;
+        // blockString = nextBlock.blockchain.hash +
+        //     nextBlock.transactions[0].from +
+        //     nextBlock.transactions[0].to +
+        //     nextBlock.transactions[0].amount +
+        //     nextBlock.transactions[0].timestamp +
+        //     nextBlock.blockchain.timestamp +
+        //     nextBlock.blockchain.nonce;
+
+        blockString = '1010010101CMGT Mining CorporationBas11517925926858151792655130223';
+        // blockString = 'text';
 
         //to make blockstring immutable
         blockString = Object.freeze(blockString);
-        console.log(blockString);
 
-        //actual string
-        // convertStringToAscii(blockString);
+        convertStringToAscii(blockString);
 
-        // test string
-        // convertStringToAscii('1010010101CMGT Mining CorporationBas11517925926858151792655130223')
-        convertStringToAscii('text')
     });
 }
 
@@ -60,6 +59,7 @@ function convertStringToAscii(input) {
         }
     }
 
+    console.log('input in asci is: ', charArray);
     splitInTen(charArray);
 }
 
@@ -127,6 +127,8 @@ function addUp(formattedArrays) {
 
 function checkForTens(calculatedArray) {
 
+    console.log('calculatedArray = ', calculatedArray)
+
     let originalArray = calculatedArray.slice();
 
     let binaryArray = [];
@@ -143,10 +145,7 @@ function checkForTens(calculatedArray) {
             // doing +1 so it ignores the first item in tail, we don't need that
             tail.push(calculatedArray.slice(i + 1, calculatedArray.length));
 
-            calculatedArray.splice(i, 1);
-            calculatedArray.splice(0, 1);
-
-            if (calculatedArray[0] < calculatedArray[i]) {
+            if (calculatedArray[0] > calculatedArray[i]) {
                 // copying for matching purposes
                 binaryArray.splice(placement, 0, 1, 0);
             }
@@ -154,6 +153,9 @@ function checkForTens(calculatedArray) {
             else {
                 binaryArray.splice(placement, 0, 0, 1);
             }
+
+            calculatedArray.splice(i, 1);
+            calculatedArray.splice(0, 1);
 
             let n = 0;
             for (let item of tail[0]) {
@@ -186,9 +188,29 @@ function checkForTens(calculatedArray) {
 
     console.log('Original array was: ', originalArray);
 
-    console.log('binaryArray is: ', binaryArray);
+    checkIfBinary(binaryArray);
 }
 
+
+function checkIfBinary(binaryArray) {
+
+    for (let item of binaryArray) {
+
+        if (item !== 1 && item !== 0) {
+            nonce++;
+            let newBlockString = blockString + nonce;
+            console.log(newBlockString);
+            setTimeout(() => {
+                convertStringToAscii(newBlockString)
+            }, 0);
+            return false;
+        }
+    }
+
+    console.log('nonce is: ', nonce);
+
+    console.log('binaryArray is: ', binaryArray);
+}
 
 
 
