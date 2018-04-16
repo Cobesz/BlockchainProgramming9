@@ -5,39 +5,55 @@ const request = require('request');
 let allBlocks;
 let nextBlock;
 let blockString;
+
+let filledArray = [];
+
 let nonce = -1;
 
 let blockConfirmed = false;
 
-getNextBlock();
+
+describe('Blockchain Tests', function () {
+    it('Should return an array', function () {
+
+        getNextBlock();
+
+        function getNextBlock() {
+            request.get("http://programmeren9.cmgt.hr.nl:8000/api/blockchain/next", (error, response, body) => {
+                nextBlock = JSON.parse(body);
+
+                console.log(nextBlock.blockchain);
+
+                blockString = nextBlock.blockchain.hash +
+                    nextBlock.blockchain.data[0].from +
+                    nextBlock.blockchain.data[0].to +
+                    nextBlock.blockchain.data[0].amount +
+                    nextBlock.blockchain.data[0].timestamp +
+                    nextBlock.blockchain.timestamp +
+                    nextBlock.blockchain.nonce;
+
+                console.log(blockString);
+
+                //to make blockstring immutable
+                blockString = Object.freeze(blockString);
+
+                //actual unit test
+                chai.expect(convertStringToAscii(blockString)).to.be.a('array');
+            });
+        }
+    });
+});
+
+describe('amount of elements test', function () {
+
+    it('Should return 10 elements', function () {
+        chai.expect(filledArray.should.be.above(10));
+    });
+});
 
 function getAllBlocks() {
     request.get("http://programmeren9.cmgt.hr.nl:8000/api/blockchain", (error, response, body) => {
         allBlocks = JSON.parse(body);
-    });
-}
-
-function getNextBlock() {
-    request.get("http://programmeren9.cmgt.hr.nl:8000/api/blockchain/next", (error, response, body) => {
-        nextBlock = JSON.parse(body);
-
-        console.log(nextBlock.blockchain);
-
-        blockString = nextBlock.blockchain.hash +
-            nextBlock.blockchain.data[0].from +
-            nextBlock.blockchain.data[0].to +
-            nextBlock.blockchain.data[0].amount +
-            nextBlock.blockchain.data[0].timestamp +
-            nextBlock.blockchain.timestamp +
-            nextBlock.blockchain.nonce;
-
-        console.log(blockString);
-
-        //to make blockstring immutable
-        blockString = Object.freeze(blockString);
-
-        convertStringToAscii(blockString);
-
     });
 }
 
@@ -61,6 +77,9 @@ function convertStringToAscii(input) {
     }
 
     splitInTen(charArray);
+
+    return charArray;
+
 }
 
 function splitInTen(charArray) {
@@ -76,18 +95,18 @@ function splitInTen(charArray) {
         let tempArray = charArray.slice(i, i + chunk);
         chunkedArray.push(tempArray);
     }
+
     fillChunks(chunkedArray);
 }
 
 function fillChunks(chunkedArray) {
 
     let fillingz = 0;
-    let filledArray = [];
+
 
     // if array is smaller than 10 items, fill it.
     for (let item of chunkedArray) {
         while (item.length !== 10) {
-            // let addedEntry = fillingz.toString();
             let addedEntry = fillingz.toString();
             item.splice(item.length, 0, addedEntry);
             fillingz++;
@@ -95,7 +114,11 @@ function fillChunks(chunkedArray) {
         filledArray.push(item);
     }
 
-    addUp(chunkedArray);
+    return;
+
+    addUp(filledArray);
+
+
 }
 
 
@@ -218,7 +241,7 @@ function checkIfBinary(binaryArray) {
     if (blockConfirmed === true) {
         console.log('Block is found, carry on.');
         console.log('nonce is: ', nonce);
-        postBlock();
+        // postBlock();
 
     } else {
         console.log('parsing old hash');
