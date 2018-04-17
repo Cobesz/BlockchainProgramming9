@@ -28,15 +28,15 @@ function getAllBlocks() {
         allBlocks = JSON.parse(body);
     });
 }
-//
+
 // describe('fill array test', function () {
 //     it('Last array should have 10 characters', function () {
 //         chai.expect(fillChunks(testArray)[testArray.length -1]).to.have.lengthOf(10);
 //     })
 // });
 
-// describe('Blockchain Tests', function () {
-//     it('Should return an array', function () {
+describe('Blockchain Tests', function () {
+    it('Should return an array', function () {
 
         getNextBlock();
 
@@ -59,13 +59,13 @@ function getAllBlocks() {
                 //to make blockstring immutable
                 blockString = Object.freeze(blockString);
 
-                convertStringToAscii(blockString);
+                // convertStringToAscii(blockString);
                 //actual unit test
-                // chai.expect(convertStringToAscii(blockString)).to.be.a('array');
+                chai.expect(convertStringToAscii(blockString)).to.be.a('array');
             });
         }
-//     });
-// });
+    });
+});
 
 function convertStringToAscii(input) {
 
