@@ -6,15 +6,37 @@ let allBlocks;
 let nextBlock;
 let blockString;
 
-let filledArray = [];
-
 let nonce = -1;
 
 let blockConfirmed = false;
 
+let testArray = [['1', '0', '0', '1', '0', '1', '0', '1', '0', '1'],
+                 ['6', '7', '7', '7', '7', '1', '8', '4', '7', '7'],
+                 ['1', '0', '5', '1', '1', '0', '1', '0', '5', '1'],
+                 ['1', '0', '1', '0', '3', '6', '7', '1', '1', '1'],
+                 ['1', '1', '4', '1', '1', '2', '1', '1', '1', '1'],
+                 ['1', '4', '9', '7', '1', '1', '6', '1', '0', '5'],
+                 ['1', '1', '1', '1', '1', '0', '0', '9', '0', '5'],
+                 ['3', '8', '6', '1', '1', '5', '2', '3', '8', '9'],
+                 ['7', '4', '5', '0', '9', '1', '6', '1', '5', '2'],
+                 ['3', '9', '0', '6', '6', '9', '3', '2', '8', '5'],
+                 ['7', '1', '5']];
 
-describe('Blockchain Tests', function () {
-    it('Should return an array', function () {
+
+function getAllBlocks() {
+    request.get("http://programmeren9.cmgt.hr.nl:8000/api/blockchain", (error, response, body) => {
+        allBlocks = JSON.parse(body);
+    });
+}
+//
+// describe('fill array test', function () {
+//     it('Last array should have 10 characters', function () {
+//         chai.expect(fillChunks(testArray)[testArray.length -1]).to.have.lengthOf(10);
+//     })
+// });
+
+// describe('Blockchain Tests', function () {
+//     it('Should return an array', function () {
 
         getNextBlock();
 
@@ -37,25 +59,13 @@ describe('Blockchain Tests', function () {
                 //to make blockstring immutable
                 blockString = Object.freeze(blockString);
 
+                convertStringToAscii(blockString);
                 //actual unit test
-                chai.expect(convertStringToAscii(blockString)).to.be.a('array');
+                // chai.expect(convertStringToAscii(blockString)).to.be.a('array');
             });
         }
-    });
-});
-
-describe('amount of elements test', function () {
-
-    it('Should return 10 elements', function () {
-        chai.expect(filledArray.should.be.above(10));
-    });
-});
-
-function getAllBlocks() {
-    request.get("http://programmeren9.cmgt.hr.nl:8000/api/blockchain", (error, response, body) => {
-        allBlocks = JSON.parse(body);
-    });
-}
+//     });
+// });
 
 function convertStringToAscii(input) {
 
@@ -79,7 +89,6 @@ function convertStringToAscii(input) {
     splitInTen(charArray);
 
     return charArray;
-
 }
 
 function splitInTen(charArray) {
@@ -103,6 +112,7 @@ function fillChunks(chunkedArray) {
 
     let fillingz = 0;
 
+    let filledArray = [];
 
     // if array is smaller than 10 items, fill it.
     for (let item of chunkedArray) {
@@ -114,11 +124,10 @@ function fillChunks(chunkedArray) {
         filledArray.push(item);
     }
 
-    return;
+    // Tijdens testen dit uitvoeren
+    // return filledArray;
 
     addUp(filledArray);
-
-
 }
 
 
@@ -241,7 +250,7 @@ function checkIfBinary(binaryArray) {
     if (blockConfirmed === true) {
         console.log('Block is found, carry on.');
         console.log('nonce is: ', nonce);
-        // postBlock();
+        postBlock();
 
     } else {
         console.log('parsing old hash');
